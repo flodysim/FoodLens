@@ -1,0 +1,7 @@
+{
+  "name": "FoodAI Nutrition Tracker",
+  "description": "Snap a photo of your meal to instantly get detailed nutritional information, ingredients breakdown, and a health score using Gemini AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
