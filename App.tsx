@@ -904,7 +904,7 @@ const App: React.FC = () => {
             <h3 className="text-lg font-black text-[#1C1C1E]">{t.recentlyLogged}</h3>
             <div className="flex gap-3">
               <button onClick={() => setLang(l => l === 'en' ? 'zh' : 'en')} className="font-bold text-xs bg-gray-200 px-2 py-1 rounded-lg pressable">
-                {lang === 'en' ? 'CN' : 'EN'}
+                {lang === 'en' ? '中' : 'EN'}
               </button>
               <button
                 onClick={() => cameraInputRef.current?.click()}
