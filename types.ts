@@ -21,14 +21,20 @@ export interface NutritionData {
 
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 
+export type GoalType = 'lose' | 'maintain' | 'gain';
+
 export interface UserProfile {
   weight: number;
   height: number;
   age: number;
   gender: 'male' | 'female';
   activityLevel: number;
+  goal: GoalType;
+  targetWeight?: number;
   targetCalories: number;
-  targetProtein: number; // Added protein target
+  targetProtein: number;
+  targetCarbs: number;
+  targetFat: number;
 }
 
 export interface MealEntry {
@@ -37,15 +43,21 @@ export interface MealEntry {
   type: MealType;
   foodName: string;
   calories: number;
-  protein: number; // Added protein tracking
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 export interface HistoryEntry {
   date: string;
   consumed: number;
   proteinConsumed: number;
+  carbsConsumed: number;
+  fatConsumed: number;
   target: number;
   proteinTarget: number;
+  carbsTarget: number;
+  fatTarget: number;
 }
 
 export enum AppState {
@@ -54,5 +66,7 @@ export enum AppState {
   LOADING = 'LOADING',
   RESULTS = 'RESULTS',
   ERROR = 'ERROR',
-  MANUAL = 'MANUAL'
+  MANUAL = 'MANUAL',
+  ANALYTICS = 'ANALYTICS',
+  SETTINGS = 'SETTINGS'
 }

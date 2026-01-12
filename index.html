@@ -1,70 +1,89 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SIM Food - Simple Nutrition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-      :root {
-        --ios-bg: #F2F2F7;
-        --accent-green: #34C759;
-        --accent-orange: #FF9500;
-        --accent-blue: #007AFF;
-        --accent-red: #FF3B30;
-      }
-      body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: var(--ios-bg);
-        color: #1C1C1E;
-        margin: 0;
-        overflow-x: hidden;
-      }
-      .soft-glow {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        background: radial-gradient(circle at 10% 10%, rgba(52, 199, 89, 0.05) 0%, transparent 50%),
-                    radial-gradient(circle at 90% 90%, rgba(0, 122, 255, 0.05) 0%, transparent 50%);
-        z-index: -1;
-        pointer-events: none;
-      }
-      .card-base {
-        background: #FFFFFF;
-        border-radius: 28px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(0, 0, 0, 0.02);
-      }
-      .glass-nav {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-      }
-      .activity-ring-bg {
-        fill: none;
-        stroke: #E5E5EA;
-      }
-      .activity-ring-progress {
-        fill: none;
-        stroke-linecap: round;
-        transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      ::-webkit-scrollbar {
-        width: 0px;
-      }
-      .pressable:active {
-        transform: scale(0.96);
-        opacity: 0.9;
-      }
-      .transition-all {
-        transition: all 0.3s ease;
-      }
-    </style>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIM Food - Simple Nutrition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ios-bg: #F2F2F7;
+      --accent-green: #34C759;
+      --accent-orange: #FF9500;
+      --accent-blue: #007AFF;
+      --accent-red: #FF3B30;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--ios-bg);
+      color: #1C1C1E;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .soft-glow {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 10% 10%, rgba(52, 199, 89, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(0, 122, 255, 0.05) 0%, transparent 50%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .card-base {
+      background: #FFFFFF;
+      border-radius: 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-ring-bg {
+      fill: none;
+      stroke: #E5E5EA;
+    }
+
+    .activity-ring-progress {
+      fill: none;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    ::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    .pressable:active {
+      transform: scale(0.96);
+      opacity: 0.9;
+    }
+
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -77,8 +96,11 @@
 }
 </script>
 </head>
-  <body>
-    <div class="soft-glow"></div>
-    <div id="root"></div>
-  </body>
+
+<body>
+  <div class="soft-glow"></div>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>

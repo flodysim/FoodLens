@@ -11,24 +11,24 @@ interface NutritionCardProps {
 const NutritionCard: React.FC<NutritionCardProps> = ({ label, value, icon }) => {
   const getTheme = () => {
     const l = label.toLowerCase();
-    if (l.includes('energy')) return { text: 'text-orange-500', bg: 'bg-orange-50' };
-    if (l.includes('synthesis') || l.includes('protein')) return { text: 'text-blue-500', bg: 'bg-blue-50' };
-    if (l.includes('carbon') || l.includes('carb')) return { text: 'text-green-500', bg: 'bg-green-50' };
-    if (l.includes('lipid') || l.includes('fat')) return { text: 'text-yellow-600', bg: 'bg-yellow-50' };
-    return { text: 'text-gray-500', bg: 'bg-gray-50' };
+    if (l.includes('energy') || l.includes('cal')) return { text: 'text-[#1C1C1E]', bg: 'bg-white', iconColor: 'text-[#1C1C1E]' };
+    if (l.includes('protein')) return { text: 'text-[#1C1C1E]', bg: 'bg-[#FFF2F2]', iconColor: 'text-[#FF3B30]' };
+    if (l.includes('carb')) return { text: 'text-[#1C1C1E]', bg: 'bg-[#F2FFF5]', iconColor: 'text-[#34C759]' };
+    if (l.includes('fat')) return { text: 'text-[#1C1C1E]', bg: 'bg-[#FFFBF2]', iconColor: 'text-[#FF9500]' };
+    return { text: 'text-gray-500', bg: 'bg-gray-50', iconColor: 'text-gray-400' };
   };
 
   const theme = getTheme();
 
   return (
-    <div className="card-base p-5 flex flex-col gap-3 transition-all hover:shadow-lg">
+    <div className={`rounded-[24px] p-6 flex flex-col gap-2 transition-all shadow-sm ${theme.bg}`}>
       <div className="flex items-center gap-2">
-        <div className={`p-2 rounded-xl ${theme.bg} ${theme.text}`}>
-          {icon}
+        <div className={theme.iconColor}>
+          {React.cloneElement(icon as React.ReactElement, { size: 18, className: 'fill-current' })}
         </div>
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-tight">{label}</span>
+        <span className="text-[11px] font-bold text-gray-500 tracking-tight">{label}</span>
       </div>
-      <div className="text-2xl font-bold text-gray-900 tracking-tight">
+      <div className="text-3xl font-black text-[#1C1C1E] tracking-tight">
         {value}
       </div>
     </div>

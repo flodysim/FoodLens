@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { NutritionData } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -33,8 +33,11 @@ const responseSchema = {
   required: ["foodName", "healthScore", "totalCalories", "totalProtein", "totalProteinGrams", "totalCarbs", "totalFat", "ingredients"]
 };
 
-export const analyzeFoodImage = async (base64Image: string): Promise<NutritionData> => {
+export const analyzeFoodImage = async (base64Image: string, providedApiKey?: string): Promise<NutritionData> => {
   try {
+    const key = providedApiKey || process.env.API_KEY || '';
+    const ai = new GoogleGenAI({ apiKey: key });
+
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: {
