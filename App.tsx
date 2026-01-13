@@ -343,7 +343,9 @@ const App: React.FC = () => {
     } catch { return null; }
   });
 
-  const [dailyLog, setDailyLog] = useState<MealEntry[]>(() => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const [allMeals, setAllMeals] = useState<MealEntry[]>(() => {
     try {
       const saved = localStorage.getItem('foodai_log');
       return saved ? JSON.parse(saved) : [];
@@ -390,8 +392,8 @@ const App: React.FC = () => {
   }, [userProfile]);
 
   useEffect(() => {
-    localStorage.setItem('foodai_log', JSON.stringify(dailyLog));
-  }, [dailyLog]);
+    localStorage.setItem('foodai_log', JSON.stringify(allMeals));
+  }, [allMeals]);
 
   useEffect(() => {
     localStorage.setItem('foodai_history', JSON.stringify(history));
@@ -442,16 +444,25 @@ const App: React.FC = () => {
   const logMeal = () => {
     if (!data) return;
     const multiplier = 1 / portionCount;
-    setDailyLog(prev => [...prev, {
+    // Create timestamp based on selected date but current time
+    const entryDate = new Date(selectedDate);
+    const now = new Date();
+    entryDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+    const newMeal = {
       id: Date.now().toString(),
-      timestamp: Date.now(),
+      timestamp: entryDate.getTime(),
       type: selectedMealType,
       foodName: data.foodName + (portionCount > 1 ? ` (1/${portionCount} portion)` : ''),
       calories: Math.round(Number(data.totalCalories) * (portionCount > 1 ? multiplier : 1)),
       protein: Number((Number(data.totalProteinGrams) * multiplier).toFixed(1)),
       carbs: Math.round((parseInt(data.totalCarbs) || 0) * multiplier),
       fat: Math.round((parseInt(data.totalFat) || 0) * multiplier)
-    }]);
+    };
+
+
+
+    setAllMeals(prev => [...prev, newMeal]);
     resetToDashboard();
     setPortionCount(1);
   };
@@ -459,9 +470,14 @@ const App: React.FC = () => {
   const logManualMeal = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    setDailyLog(prev => [...prev, {
+
+    const now = new Date();
+    const entryDate = new Date(selectedDate);
+    entryDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+    setAllMeals(prev => [...prev, {
       id: Date.now().toString(),
-      timestamp: Date.now(),
+      timestamp: entryDate.getTime(),
       type: formData.get('mealType') as MealType,
       foodName: formData.get('foodName') as string,
       calories: Number(formData.get('calories')),
@@ -496,16 +512,25 @@ const App: React.FC = () => {
       carbsTarget: userProfile?.targetCarbs || 250,
       fatTarget: userProfile?.targetFat || 60
     }, ...prev].slice(0, 14));
-    setDailyLog([]);
+    // Data is now persisted in allMeals, no need to clear.
+    // Ideally we might mark these as "processed" but for now just closing.
     setIsEndDayModalOpen(false);
     setState(AppState.IDLE);
   };
 
   const deleteMeal = (id: string) => {
     if (window.confirm(t.deleteEntry)) {
-      setDailyLog(prev => prev.filter(i => i.id !== id));
+      setAllMeals(prev => prev.filter(i => i.id !== id));
     }
   };
+
+  // Filter logs for selected date
+  const dailyLog = allMeals.filter(meal => {
+    const mealDate = new Date(meal.timestamp);
+    return mealDate.getDate() === selectedDate.getDate() &&
+      mealDate.getMonth() === selectedDate.getMonth() &&
+      mealDate.getFullYear() === selectedDate.getFullYear();
+  });
 
   const totalCaloriesConsumed = dailyLog.reduce((sum, item) => sum + item.calories, 0);
   const totalProteinConsumed = dailyLog.reduce((sum, item) => sum + item.protein, 0);
@@ -804,26 +829,99 @@ const App: React.FC = () => {
 
   if (state === AppState.IDLE || state === AppState.ERROR) {
     const today = new Date();
+    // Generate last 30 days for scrolling, centering on selected if possible or just showing week
+    // Let's just show a sliding window around selectedDate or just the current week?
+    // User asked "if I click on 12 Jan", implies access to specific past dates. 
+    // Let's show a scrollable list of the last 14 days + nice navigation?
+    // For now, let's keep the week view but strictly anchored to "current week" or "selected week"?
+    // The previous implementation anchored to "Start of current week". 
+    // Let's make it better: Show 5 days before and 1 day after? Or just this week.
+
+    // Let's create a range of dates.
     const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
-      d.setDate(today.getDate() - today.getDay() + i);
+      // Center the view? Or just show the current week "Sunday to Saturday"?
+      // Previous code: d.setDate(today.getDate() - today.getDay() + i); (This is Sunday-based week of CURRENT date)
+      // If I want to navigate back to 12 Jan, I need to be able to see it.
+      // If we only show current week, we can't see past weeks.
+      // Let's construct the week *containing* the selectedDate.
+      const startOfWeek = new Date(selectedDate);
+      startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay()); // Go to Sunday
+
+      const day = new Date(startOfWeek);
+      day.setDate(startOfWeek.getDate() + i);
       return {
-        name: d.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { weekday: 'short' }),
-        date: d.getDate(),
-        isToday: d.toDateString() === today.toDateString()
+        name: day.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { weekday: 'short' }),
+        date: day.getDate(),
+        fullDate: day,
+        isSelected: day.toDateString() === selectedDate.toDateString(),
+        isToday: day.toDateString() === today.toDateString()
       };
     });
 
     return (
       <div className="min-h-screen bg-[#F2F2F7] flex flex-col items-center pb-32 max-w-sm mx-auto font-['Plus_Jakarta_Sans']">
         {/* Top Date Selector */}
-        <div className="w-full flex justify-between px-4 py-6">
+        <div className="w-full flex justify-between px-4 py-6 overflow-x-auto">
           {days.map((d, i) => (
-            <div key={i} className={`flex flex-col items-center p-2 rounded-xl transition-all ${d.isToday ? 'bg-black text-white' : 'bg-transparent text-gray-400'}`}>
+            <button
+              key={i}
+              onClick={() => setSelectedDate(d.fullDate)}
+              className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[44px] ${d.isSelected
+                ? 'bg-black text-white shadow-lg scale-110'
+                : d.isToday
+                  ? 'bg-gray-200 text-gray-900'
+                  : 'bg-transparent text-gray-400 hover:bg-gray-50'
+                }`}
+            >
               <span className="text-[10px] font-bold uppercase">{d.name}</span>
               <span className="text-base font-black">{d.date}</span>
-            </div>
+              {d.isToday && !d.isSelected && <div className="w-1 h-1 rounded-full bg-black mt-1" />}
+            </button>
           ))}
+          {/* Simple Navigation for Weeks - Optional but helpful if we are locked to a week */}
+          {/* For now, clicking days in the current week view is enough, but user might want to go back further. 
+              The current logic renders the week of the SELECTED date. 
+              So if I selected today, I see this week. 
+              To go back, I need a way to change the week? 
+              Actually, the prompt request "If I click on 12 Jan" implies the date is visible.
+              Let's add a "Previous Week" / "Next Week" arrow or similar if needed? 
+              Or just rely on the user to pick dates?
+              Wait, if I can only see the *current* week of the selected date, how do I jump to *last* week?
+              Refinement needs: Add arrow buttons to change the view/selectedDate by -7 days?
+              Or just assume the user taps "Left Chevron" somewhere?
+              I'll add small chevrons around the date strip logic or just keep it simple for now. 
+              Actually, let's just add a chevron left/right to the strip header if possible, or just make the strip scrollable?
+              Simpler: Add a "Calendar" button or just arrows.
+              Let's add arrows to the sides of the date strip.
+           */}
+        </div>
+
+        {/* Date Navigation Helper (Week Jumper) */}
+        <div className="flex items-center justify-between w-full px-6 mb-2 -mt-2">
+          <button
+            onClick={() => {
+              const d = new Date(selectedDate);
+              d.setDate(d.getDate() - 7);
+              setSelectedDate(d);
+            }}
+            className="p-2 text-gray-400 hover:text-gray-900"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            {selectedDate.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { month: 'long', year: 'numeric' })}
+          </span>
+          <button
+            onClick={() => {
+              const d = new Date(selectedDate);
+              d.setDate(d.getDate() + 7);
+              setSelectedDate(d);
+            }}
+            className="p-2 text-gray-400 hover:text-gray-900"
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
 
         {/* Calorie Card */}
